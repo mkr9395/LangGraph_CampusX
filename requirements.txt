@@ -5,16 +5,15 @@ openai
 pydantic
 python-dotenv
 fastapi
-transformers
-huggingface-hub
+
 langchain_openai
 
 
-streamlit
+# streamlit
 pypdf
 
 langchain-huggingface
-transformers
-huggingface-hub
-sentence-transformers
+# transformers
+# huggingface-hub
+# sentence-transformers
 requests
