@@ -9,7 +9,8 @@ fastapi
 langchain_openai
 
 
-# streamlit
+
+streamlit
 pypdf
 
 langchain-huggingface
