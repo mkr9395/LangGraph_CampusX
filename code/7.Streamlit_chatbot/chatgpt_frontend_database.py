@@ -43,6 +43,7 @@ def load_conversation(thread_id):
     Load all messages of a given thread ID from the chatbot state.
     Returns a list of messages if present, otherwise returns an empty list.
     """
+    # >>> Added for Suggestion 1: Error Handling
     try:
         state = chatbot.get_state(config={'configurable': {'thread_id': thread_id}})
         # Retrieve messages from state (default to [] if not found)
@@ -69,6 +70,19 @@ if 'chat_threads' not in st.session_state:
 # Make sure the current thread_id is added to chat_threads
 add_thread(st.session_state['thread_id'])
 
+# >>> Added for Suggestion 2: Thread Naming
+# Dictionary to store human-readable thread names for display
+if 'thread_names' not in st.session_state:
+    st.session_state['thread_names'] = {}
+
+def get_thread_display_name(thread_id):
+    """
+    Get the display name for a thread.
+    If the user renamed it, show the custom name.
+    Otherwise, show a shortened UUID.
+    """
+    return st.session_state['thread_names'].get(thread_id, str(thread_id)[:8])
+
 
 #************************************************* Sidebar UI **********************************************************
 
@@ -80,26 +94,38 @@ if st.sidebar.button('New Chat'):
 
 st.sidebar.header('My conversations')
 
-# Show all conversation thread IDs in reverse order (most recent first)
-for thread_id in st.session_state['chat_threads'][::-1]:
-    if st.sidebar.button(str(thread_id)):
-        # Switch to selected thread
-        st.session_state['thread_id'] = thread_id
+# >>> Added for Suggestion 4: Use expander for better organization
+with st.sidebar.expander("Conversation Threads", expanded=True):
+    for thread_id in st.session_state['chat_threads'][::-1]:
+        # Show thread display name instead of raw UUID
+        if st.sidebar.button(get_thread_display_name(thread_id)):
+            # Switch to selected thread
+            st.session_state['thread_id'] = thread_id
 
-        # Load messages for that thread
-        messages = load_conversation(thread_id)
+            # Load messages for that thread
+            messages = load_conversation(thread_id)
 
-        temp_messages = []
-        for msg in messages:
-            # Identify role based on message type
-            if isinstance(msg, HumanMessage):
-                role = 'user'
-            else:
-                role = 'assistant'
-            temp_messages.append({'role': role, 'content': msg.content})
+            temp_messages = []
+            for msg in messages:
+                # Identify role based on message type
+                if isinstance(msg, HumanMessage):
+                    role = 'user'
+                else:
+                    role = 'assistant'
+                temp_messages.append({'role': role, 'content': msg.content})
 
-        # Update session message history with the loaded conversation
-        st.session_state['message_history'] = temp_messages
+            # Update session message history with the loaded conversation
+            st.session_state['message_history'] = temp_messages
+
+    # Allow user to rename current thread for readability
+    current_thread_id = st.session_state['thread_id']
+    new_name = st.text_input(
+        "Rename current thread:",
+        value=st.session_state['thread_names'].get(current_thread_id, ""),
+        placeholder="Enter custom name..."
+    )
+    if new_name:
+        st.session_state['thread_names'][current_thread_id] = new_name
 
 
 #************************************************** Main UI *************************************************************
@@ -123,13 +149,18 @@ if user_input:
 
     # 3. Stream assistant’s response
     with st.chat_message('assistant'):
-        ai_message = st.write_stream(
-            message_chunk.content for message_chunk, metadata in chatbot.stream(
-                {'messages': [HumanMessage(content=user_input)]},  # initial state
-                config=CONFIG,  # pass thread config
-                stream_mode='messages'  # stream token by token as messages
+        # >>> Added for Suggestion 1: Error Handling
+        try:
+            ai_message = st.write_stream(
+                message_chunk.content for message_chunk, metadata in chatbot.stream(
+                    {'messages': [HumanMessage(content=user_input)]},  # initial state
+                    config=CONFIG,  # pass thread config
+                    stream_mode='messages'  # stream token by token as messages
+                )
             )
-        )
+        except Exception as e:
+            st.error(f"⚠️ Failed to get response from chatbot: {e}")
+            ai_message = "Sorry, something went wrong."
 
     # 4. Add assistant response to session history
     st.session_state['message_history'].append({'role': 'assistant', 'content': ai_message})
