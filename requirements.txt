@@ -7,7 +7,7 @@ python-dotenv
 fastapi
 
 langchain_openai
-
+uuid
 
 
 streamlit

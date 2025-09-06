@@ -2,14 +2,14 @@ import streamlit as st
 from langgrapgh_backend import chatbot
 from langchain_core.messages import HumanMessage
 
-
+########################## Session Setup #################################
 # st.session_state -> dict ->
 CONFIG = {'configurable': {'thread_id': 'thread-1'}}
 
 if 'message_history' not in st.session_state:
     st.session_state['message_history'] = []
 
-
+############################################# UI ##########################################
 
 # display all messages inside the message_history
 for message in st.session_state['message_history']:
