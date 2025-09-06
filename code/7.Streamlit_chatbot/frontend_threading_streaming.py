@@ -7,7 +7,7 @@ import uuid # to create random new threads
 #************************************************* Utility functions**********************************
 
 # utility functions to create random thread
-def generate_thread_id()-> str:
+def generate_thread_id():
     """
     will give random new thread
     """
