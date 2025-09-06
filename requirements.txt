@@ -8,10 +8,11 @@ fastapi
 
 langchain_openai
 uuid
-
+langgraph-checkpoint-sqlite
 
 streamlit
 pypdf
+# sqlite3
 
 langchain-huggingface
 # transformers
