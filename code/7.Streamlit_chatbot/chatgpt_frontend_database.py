@@ -4,7 +4,7 @@ from langchain_core.messages import HumanMessage
 
 import uuid  # to create random new thread IDs
 
-#************************************************* Utility functions**********************************
+# ************************************************* Utility functions**********************************
 
 def generate_thread_id():
     """

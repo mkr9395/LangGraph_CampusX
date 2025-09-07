@@ -118,8 +118,15 @@ if user_input:
     with st.chat_message('user'):
         st.text(user_input)
 
-    # 2. Prepare configuration for chatbot (thread-specific)
-    CONFIG = {'configurable': {'thread_id': st.session_state['thread_id']}}
+    # 2. Prepare configuration for chatbot (thread-specific) for Langsmith
+    # CONFIG = {'configurable': {'thread_id': st.session_state['thread_id']}}
+    
+    # this is the new CONFIG will will help the code to be tracked by langsmith
+    CONFIG = {
+        "configurable":{"thread_id": st.session_state['thread_id']},
+        "metadata":{"thread_id":st.session_state['thread_id']},
+        "run_time": "chat_turn",
+    }
 
     # 3. Stream assistant’s response
     with st.chat_message('assistant'):
