@@ -9,6 +9,8 @@ fastapi
 langchain_openai
 uuid
 langgraph-checkpoint-sqlite
+langgraph-prebuilt
+ddgs
 
 streamlit
 pypdf
